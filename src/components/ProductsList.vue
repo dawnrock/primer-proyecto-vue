@@ -4,6 +4,8 @@
       <h1>Products</h1>
       total: {{ totalProducts }}
     </div>
+
+    Cart: {{ totalItemsInCart }}
     <ul class="product-list">
       <li v-for="product in list" :key="product.id">
         <router-link :to="`/detail/${product.id}`">
@@ -36,7 +38,7 @@
               <div class="text-align-end aside__price">
                 <StaticPrice :quantity="product.price" />
               </div>
-              <AddToCartButton :product="product" @addItem="onAddItem" />
+              <AddToCartButton :product="product" />
             </div>
           </article>
         </router-link>
@@ -46,31 +48,33 @@
 </template>
 
 <script lang="ts">
-import { productService } from '@/services/products';
 import { defineComponent } from 'vue';
-import { Product } from '@/types';
+import useProductsApi from '@/use/productsApi';
 import StaticPrice from '@/components/StaticPrice.vue';
 import AddToCartButton from '@/components/AddToCartButton.vue';
+import { CartItem } from '@/store/Cart';
+import { mapGetters } from 'vuex';
 
 export default defineComponent({
+  name: 'ProductList',
   components: { StaticPrice, AddToCartButton },
-  data() {
-    return {
-      list: [] as Product[],
-    };
-  },
   computed: {
-    totalProducts(): number {
-      return this.list.length;
+    ...mapGetters('CartModule', ['items']),
+    totalItemsInCart() {
+      const cartItems: CartItem[] = Object.values(this.items || {});
+      return cartItems.reduce((acc: number, item: CartItem) => {
+        return item.quantity + acc;
+      }, 0);
     },
   },
-  async created() {
-    this.list = await productService.get();
-  },
-  methods: {
-    onAddItem(product: Product) {
-      console.log(product);
-    },
+
+  async setup() {
+    const { list, totalProducts } = await useProductsApi();
+
+    return {
+      list,
+      totalProducts,
+    };
   },
 });
 </script>

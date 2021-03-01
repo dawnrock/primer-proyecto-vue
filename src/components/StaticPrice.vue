@@ -31,6 +31,7 @@ export default defineComponent({
     locale(): string {
       return this.coin === 'EUR' ? 'es-ES' : 'en-US';
     },
+
     parsedPrice(): string {
       return new Intl.NumberFormat(this.locale, {
         style: 'currency',

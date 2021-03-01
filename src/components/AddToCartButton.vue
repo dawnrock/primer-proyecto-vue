@@ -1,12 +1,14 @@
 <template>
-  <button class="button" type="button" @click.prevent="addItem()">
-    Add to Cart
+  <button class="button" type="button" @click.stop.prevent="addItem(product)">
+    Add to cart button
   </button>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType } from 'vue';
 import { Product } from '@/types';
+import { mapActions } from 'vuex';
+
 export default defineComponent({
   props: {
     product: {
@@ -15,8 +17,9 @@ export default defineComponent({
     },
   },
   methods: {
-    addItem(): void {
-      this.$emit('add-item', this.product);
+    ...mapActions('CartModule', ['addItemToCart']),
+    addItem(product: Product): void {
+      this.addItemToCart(product);
     },
   },
 });
