@@ -5,9 +5,13 @@
       total: {{ totalProducts }}
     </div>
 
-    Cart: {{ totalItemsInCart }}
+    <hr />
+    <input type="text" v-model="textFilter" />
+    Total prodcutos: {{ totalFilteredProducts }}
+    <hr />
+
     <ul class="product-list">
-      <li v-for="product in list" :key="product.id">
+      <li v-for="product in filteredList" :key="product.id">
         <router-link :to="`/detail/${product.id}`">
           <article
             class="grid product-container card"
@@ -48,32 +52,39 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { computed, defineComponent, ref, Ref } from 'vue';
 import useProductsApi from '@/use/productsApi';
 import StaticPrice from '@/components/StaticPrice.vue';
 import AddToCartButton from '@/components/AddToCartButton.vue';
-import { CartItem } from '@/store/Cart';
-import { mapGetters } from 'vuex';
+import { Product } from '@/types';
+
+const matchStrings = (strA: string, strB: string) =>
+  strA.toLocaleLowerCase().match(strB.toLocaleLowerCase());
 
 export default defineComponent({
   name: 'ProductList',
+
   components: { StaticPrice, AddToCartButton },
-  computed: {
-    ...mapGetters('CartModule', ['items']),
-    totalItemsInCart() {
-      const cartItems: CartItem[] = Object.values(this.items || {});
-      return cartItems.reduce((acc: number, item: CartItem) => {
-        return item.quantity + acc;
-      }, 0);
-    },
-  },
 
   async setup() {
     const { list, totalProducts } = await useProductsApi();
 
+    const textFilter = ref<string>('');
+
+    const filteredList = computed(() =>
+      list.value.filter((item: Product) =>
+        matchStrings(item.title, textFilter.value)
+      )
+    );
+
+    const totalFilteredProducts = computed(() => filteredList.value.length);
+
     return {
       list,
       totalProducts,
+      filteredList,
+      textFilter,
+      totalFilteredProducts,
     };
   },
 });

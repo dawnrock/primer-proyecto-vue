@@ -16,6 +16,11 @@ const state: () => CartState = () => ({ items: {} });
 
 const getters = {
   items: (state: CartState) => state.items,
+  totalItemsInCart: (state: CartState) => {
+    return Object.values(state.items)
+      .map((item: CartItem) => item.quantity)
+      .reduce((acc, curr) => acc + curr, 0);
+  },
 };
 
 const mutations = {

@@ -1,6 +1,6 @@
 <template>
   <button class="button" type="button" @click.stop.prevent="addItem(product)">
-    Add to cart button
+    Add to cart
   </button>
 </template>
 
@@ -8,7 +8,6 @@
 import { defineComponent, PropType } from 'vue';
 import { Product } from '@/types';
 import { mapActions } from 'vuex';
-
 export default defineComponent({
   props: {
     product: {
